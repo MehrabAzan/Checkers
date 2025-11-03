@@ -10,11 +10,11 @@ class Piece {
 		string type;
 	public:
 		Piece();
-		Piece(const string& c, const string& t);
+		Piece(string c, string t);
 		string GetColor() const { return color; }
 		string GetType() const { return type; }
-		void SetColor(const string& c) { this->color = c; }
-		void SetType(const string& t) { this->type = t; }
+		void SetColor(string c) { this->color = c; }
+		void SetType(string t) { this->type = t; }
 		void Promotion() { this->type = "king"; }
 };
 

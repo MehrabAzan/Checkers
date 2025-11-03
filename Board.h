@@ -20,7 +20,7 @@ class Board {
 		void InitializeBoard();
 		void PrintBoard() const;
 		Piece GetPiece(int r, int c) const;
-		void SetPiece(int r, int c, const Piece& p);
+		void SetPiece(int r, int c, Piece p);
 		bool MovePiece(int currR, int currC, int newR, int newC);
 };
 

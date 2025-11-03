@@ -35,7 +35,7 @@ Piece Board::GetPiece(int r, int c) const {
     return pieces[r][c];
 }
 
-void Board::SetPiece(int r, int c, const Piece& p) {
+void Board::SetPiece(int r, int c, Piece p) {
     pieces[r][c] = p;
 }
 
