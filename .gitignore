@@ -1,29 +1,7 @@
-# Build artifacts
-*.obj
-*.pdb
-*.exe
-*.dll
-*.lib
-*.ilk
-*.ipch
+# Ignore everything
+*
 
-# Build folders
-/x64/
-/Debug/
-/Release/
-/bin/
-/obj/
-
-# Visual Studio files
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-*.VC.db
-*.VC.opendb
-
-# Logs and temp files
-*.log
-*.tlog
-*.cache
-*.tmp
+# But not these:
+!.gitignore
+!*.cpp
+!*.h
