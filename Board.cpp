@@ -1,33 +1,47 @@
 #include <string>
 #include <iostream>
 #include <cstdlib>
+#include <SFML/Graphics.hpp>
 #include "Board.h"
 using namespace std;
 
-Board::Board() : row(8), column(8) {}
-
-Board::Board(int r, int c) : row(r), column(c) {}
+Board::Board() {
+    InitializeBoard();
+}
 
 void Board::InitializeBoard() {
     for (int r = 0; r < row; r++) {
         for (int c = 0; c < column; c++) {
-            if ((r % 2 == 1 && c % 2 == 0 && r < 3) || (r % 2 == 0 && c % 2 == 1 && r < 3)) {
-                pieces[r][c] = Piece("b", "man");
-            } else if ((r % 2 == 1 && c % 2 == 0 && r > 4) || (r % 2 == 0 && c % 2 == 1 && r > 4)) {
-                pieces[r][c] = Piece("w", "man");
+            tiles[r][c].setSize(sf::Vector2f(80.f, 80.f));
+			tiles[r][c].setPosition(sf::Vector2f(c * 80.f, r * 80.f));
+
+            if ((r + c) % 2 == 0) {
+                tiles[r][c].setFillColor(sf::Color::White);
             } else {
-                pieces[r][c] = Piece(".", "tile");
+                tiles[r][c].setFillColor(sf::Color::Black);
             }
+
+            if ((r % 2 == 1 && c % 2 == 0 && r < 3) || (r % 2 == 0 && c % 2 == 1 && r < 3)) {
+                pieces[r][c] = Piece("black", "man");
+            } else if ((r % 2 == 1 && c % 2 == 0 && r > 4) || (r % 2 == 0 && c % 2 == 1 && r > 4)) {
+                pieces[r][c] = Piece("white", "man");
+            } else {
+                pieces[r][c] = Piece("null", "tile");
+            }
+
+			pieces[r][c].SetPosition(c * 80.f + 20.f, r * 80.f + 20.f);
         }
     }
 }
 
-void Board::PrintBoard() const {
+void Board::PrintBoard(sf::RenderWindow& window) const {
     for (int r = 0; r < row; r++) {
         for (int c = 0; c < column; c++) {
-            cout << pieces[r][c].GetColor() << " ";
+			window.draw(tiles[r][c]);
+           if (pieces[r][c].GetColor() != "null") {
+                pieces[r][c].Draw(window);
+		   }
         }
-        cout << endl;
     }
 }
 
@@ -51,11 +65,11 @@ bool Board::MovePiece(int currR, int currC, int newR, int newC) {
         cout << "Invalid move: Out of bounds." << endl;
         return false;
     }
-    if (pieces[currR][currC].GetColor() == ".") {
+    if (pieces[currR][currC].GetColor() == "null") {
         cout << "Invalid move: No piece at the current position." << endl;
         return false;
 	}
-    if (pieces[newR][newC].GetColor() != ".") {
+    if (pieces[newR][newC].GetColor() != "null") {
         cout << "Invalid move: Destination is not empty." << endl;
         return false;
 	}
@@ -64,11 +78,11 @@ bool Board::MovePiece(int currR, int currC, int newR, int newC) {
         return false;
     }
     if (pieces[currR][currC].GetType() == "man") {
-        if (pieces[currR][currC].GetColor() == "w" && newR > currR) {
+        if (pieces[currR][currC].GetColor() == "white" && newR > currR) {
             cout << "Invalid move: White pieces (unless king) can only move up." << endl;
             return false;
         }
-        if (pieces[currR][currC].GetColor() == "b" && newR < currR) {
+        if (pieces[currR][currC].GetColor() == "black" && newR < currR) {
             cout << "Invalid move: Black pieces (unless king) can only move down." << endl;
             return false;
         }
@@ -80,19 +94,19 @@ bool Board::MovePiece(int currR, int currC, int newR, int newC) {
     if (abs(numR) == 2 && abs(numC) == 2) {
         int captureR = (currR + newR) / 2;
         int captureC = (currC + newC) / 2;
-        if (pieces[captureR][captureC].GetColor() == "." || pieces[captureR][captureC].GetColor() == pieces[currR][currC].GetColor()) {
+        if (pieces[captureR][captureC].GetColor() == "tile" || pieces[captureR][captureC].GetColor() == pieces[currR][currC].GetColor()) {
             cout << "Invalid move: No opponent piece to capture." << endl;
             return false;
         }
-        pieces[captureR][captureC] = Piece(".", "tile");
+        pieces[captureR][captureC] = Piece("null", "tile");
 	}
 
     Piece movingPiece = pieces[currR][currC];
     pieces[newR][newC] = movingPiece;
-    pieces[currR][currC] = Piece(".", "tile");
+    pieces[currR][currC] = Piece("null", "tile");
 
     if (movingPiece.GetType() == "man") {
-        if ((movingPiece.GetColor() == "w" && newR == 0) || (movingPiece.GetColor() == "b" && newR == row - 1)) {
+        if ((movingPiece.GetColor() == "white" && newR == 0) || (movingPiece.GetColor() == "black" && newR == row - 1)) {
             pieces[newR][newC].Promotion();
         }
     }

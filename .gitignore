@@ -1,0 +1,29 @@
+# Build artifacts
+*.obj
+*.pdb
+*.exe
+*.dll
+*.lib
+*.ilk
+*.ipch
+
+# Build folders
+/x64/
+/Debug/
+/Release/
+/bin/
+/obj/
+
+# Visual Studio files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.opendb
+
+# Logs and temp files
+*.log
+*.tlog
+*.cache
+*.tmp

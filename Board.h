@@ -2,23 +2,20 @@
 #define BOARD_H
 #include <string>
 #include <iostream>
+#include <SFML/Graphics.hpp>
 #include "Piece.h"
 using namespace std;
 
 class Board {
 	private:
-		int row;
-		int column;
-		Piece pieces[8][8];
+		static const int row = 8;
+		static const int column = 8;
+		Piece pieces[row][column];
+		sf::RectangleShape tiles[row][column];
 	public:
 		Board();
-		Board(int r, int c);
-		int GetRow() const { return row; }
-		int GetColumn() const { return column; }
-		void SetRow(int r) { this->row = r; }
-		void SetColumn(int c) { this->column = c; }
 		void InitializeBoard();
-		void PrintBoard() const;
+		void PrintBoard(sf::RenderWindow& window) const;
 		Piece GetPiece(int r, int c) const;
 		void SetPiece(int r, int c, Piece p);
 		bool MovePiece(int currR, int currC, int newR, int newC);
