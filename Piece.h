@@ -4,12 +4,13 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 using namespace std;
+using namespace sf;
 
 class Piece {
 	private:
 		string color;
 		string type;
-		sf::CircleShape shape;
+		CircleShape shape;
 	public:
 		Piece();
 		Piece(string c, string t);
@@ -17,7 +18,7 @@ class Piece {
 		string GetType() const { return this->type; }
 		void Promotion() { this->type = "king"; }
 		void SetPosition(float x, float y);
-		void Draw(sf::RenderWindow& window) const;
+		void Draw(RenderWindow& window) const;
 };
 
 #endif

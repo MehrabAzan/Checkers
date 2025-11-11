@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include "Board.h"
 using namespace std;
+using namespace sf;
 
 Board::Board() {
     InitializeBoard();
@@ -12,13 +13,13 @@ Board::Board() {
 void Board::InitializeBoard() {
     for (int r = 0; r < row; r++) {
         for (int c = 0; c < column; c++) {
-            tiles[r][c].setSize(sf::Vector2f(80.f, 80.f));
-			tiles[r][c].setPosition(sf::Vector2f(c * 80.f, r * 80.f));
+            tiles[r][c].setSize(Vector2f(80.f, 80.f));
+			tiles[r][c].setPosition(Vector2f(c * 80.f, r * 80.f));
 
             if ((r + c) % 2 == 0) {
-                tiles[r][c].setFillColor(sf::Color::White);
+                tiles[r][c].setFillColor(Color::White);
             } else {
-                tiles[r][c].setFillColor(sf::Color::Black);
+                tiles[r][c].setFillColor(Color(139, 69, 19));
             }
 
             if ((r % 2 == 1 && c % 2 == 0 && r < 3) || (r % 2 == 0 && c % 2 == 1 && r < 3)) {
@@ -34,7 +35,7 @@ void Board::InitializeBoard() {
     }
 }
 
-void Board::PrintBoard(sf::RenderWindow& window) const {
+void Board::PrintBoard(RenderWindow& window) const {
     for (int r = 0; r < row; r++) {
         for (int c = 0; c < column; c++) {
 			window.draw(tiles[r][c]);
@@ -45,12 +46,21 @@ void Board::PrintBoard(sf::RenderWindow& window) const {
     }
 }
 
-Piece Board::GetPiece(int r, int c) const {
-    return pieces[r][c];
-}
+bool Board::Capture(int currR, int currC, int newR, int newC, int numR, int numC) {
+    if (abs(numR) != 2 || abs(numC) != 2) {
+        return true;
+    }
 
-void Board::SetPiece(int r, int c, Piece p) {
-    pieces[r][c] = p;
+    int midR = (currR + newR) / 2;
+    int midC = (currC + newC) / 2;
+
+    if (pieces[midR][midC].GetColor() == "null" || pieces[midR][midC].GetColor() == pieces[currR][currC].GetColor()) {
+        cout << "Invalid move: No opponent piece to capture." << endl;
+        return false;
+    }
+
+    pieces[midR][midC] = Piece("null", "tile");
+    return true;
 }
 
 bool Board::MovePiece(int currR, int currC, int newR, int newC) {
@@ -91,18 +101,13 @@ bool Board::MovePiece(int currR, int currC, int newR, int newC) {
         cout << "Invalid move: Man pieces can only move one space diagonally." << endl;
         return false;
     }
-    if (abs(numR) == 2 && abs(numC) == 2) {
-        int captureR = (currR + newR) / 2;
-        int captureC = (currC + newC) / 2;
-        if (pieces[captureR][captureC].GetColor() == "tile" || pieces[captureR][captureC].GetColor() == pieces[currR][currC].GetColor()) {
-            cout << "Invalid move: No opponent piece to capture." << endl;
-            return false;
-        }
-        pieces[captureR][captureC] = Piece("null", "tile");
-	}
+    if (!Capture(currR, currC, newR, newC, numR, numC)) {
+        return false;
+    }
 
     Piece movingPiece = pieces[currR][currC];
     pieces[newR][newC] = movingPiece;
+    pieces[newR][newC].SetPosition(newC * 80.f + 20.f, newR * 80.f + 20.f);
     pieces[currR][currC] = Piece("null", "tile");
 
     if (movingPiece.GetType() == "man") {

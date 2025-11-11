@@ -5,20 +5,20 @@
 #include <SFML/Graphics.hpp>
 #include "Piece.h"
 using namespace std;
+using namespace sf;
 
 class Board {
 	private:
 		static const int row = 8;
 		static const int column = 8;
 		Piece pieces[row][column];
-		sf::RectangleShape tiles[row][column];
+		RectangleShape tiles[row][column];
 	public:
 		Board();
 		void InitializeBoard();
-		void PrintBoard(sf::RenderWindow& window) const;
-		Piece GetPiece(int r, int c) const;
-		void SetPiece(int r, int c, Piece p);
+		void PrintBoard(RenderWindow& window) const;
 		bool MovePiece(int currR, int currC, int newR, int newC);
+		bool Capture(int currR, int currC, int newR, int newC, int numR, int numC);
 };
 
 #endif
