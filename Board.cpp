@@ -6,10 +6,6 @@
 using namespace std;
 using namespace sf;
 
-Board::Board() {
-    InitializeBoard();
-}
-
 void Board::InitializeBoard() {
     for (int r = 0; r < row; r++) {
         for (int c = 0; c < column; c++) {

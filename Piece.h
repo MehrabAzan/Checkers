@@ -12,11 +12,11 @@ class Piece {
 		string type;
 		CircleShape shape;
 	public:
-		Piece();
+		Piece() : color("null"), type("tile") {}
 		Piece(string c, string t);
 		string GetColor() const { return this->color; }
 		string GetType() const { return this->type; }
-		void Promotion() { this->type = "king"; }
+		void Promotion();
 		void SetPosition(float x, float y);
 		void Draw(RenderWindow& window) const;
 };

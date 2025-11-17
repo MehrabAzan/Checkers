@@ -14,11 +14,12 @@ class Board {
 		Piece pieces[row][column];
 		RectangleShape tiles[row][column];
 	public:
-		Board();
+		Board() { InitializeBoard(); }
 		void InitializeBoard();
 		void PrintBoard(RenderWindow& window) const;
 		bool MovePiece(int currR, int currC, int newR, int newC);
 		bool Capture(int currR, int currC, int newR, int newC, int numR, int numC);
+		Piece GetPiece(int r, int c) { return pieces[r][c]; }
 };
 
 #endif
