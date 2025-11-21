@@ -2,17 +2,19 @@
 #define BOT_H
 #include <string>
 #include <iostream>
-#include <SFML/Graphics.hpp>
+#include <vector>
 #include "Piece.h"
 #include "Board.h"
 using namespace std;
-using namespace sf;
 
+// Bot class to handle AI moves
 class Bot {
 	private:
+		// will always play black pieces
 		const string color = "black";
 	public:
-		pair<pair<int, int>, pair<int, int>> MakeMove(Board& board);
+		// returns a vector of integers representing the bot's move
+		vector<int> MakeMove(Board& board);
 };
 
 #endif
