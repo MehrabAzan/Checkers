@@ -14,7 +14,7 @@ class Bot {
 		const string color = "black";
 	public:
 		// returns a vector of integers representing the bot's move
-		vector<int> MakeMove(Board& board);
+		vector<int> Move(Board& board);
 };
 
 #endif

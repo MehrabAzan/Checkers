@@ -13,7 +13,7 @@ int main() {
 	Board board;
 
 	// render the board
-	RenderWindow window(VideoMode({ 640, 640 }), "Checkers");
+	RenderWindow window(VideoMode({640, 640}), "Checkers");
 
 	// check if the player is clicking for the first time
 	bool firstClick = true;
@@ -56,9 +56,15 @@ int main() {
 							// get the piece at the clicked position
 							Piece selectedPiece = board.GetPiece(currR, currC);
 
+							// check if the player clicked outside the board
+							if (currC < 0 || currC >= 8 || currR < 0 || currR >= 8) {
+								cout << "Please click within the board." << endl;
+								// reset firstClick to true if player clicked outside the board
+								firstClick = true;
+							}
 							// ensure the player is only moving white pieces
-							if (selectedPiece.GetColor() == "black") {
-								cout << "Cannot move black." << endl;
+							if (selectedPiece.GetColor() != "white") {
+								cout << "Please click white piece." << endl;
 								// reset firstClick to true if player clicked on invalid piece
 								firstClick = true;
 							}
@@ -81,10 +87,10 @@ int main() {
 				}
 			} else {
 				// creates a vector to hold the bot's move
-				vector<int> botMove = bot.MakeMove(board);
+				vector<int> move = bot.Move(board);
 				// if it does not return the failsafe move, then the bot moves
-				if (botMove[0] != -1) {
-					board.MovePiece(botMove[0], botMove[1], botMove[2], botMove[3]);
+				if (move[0] != -1) {
+					board.MovePiece(move[0], move[1], move[2], move[3]);
 				}
 				// switch back to player's turn
 				playerTurn = true;
