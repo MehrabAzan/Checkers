@@ -13,7 +13,7 @@ int main() {
 	Board board;
 
 	// render the board
-	RenderWindow window(VideoMode({640, 640}), "Checkers");
+	RenderWindow window(VideoMode({ 640, 640 }), "Checkers");
 
 	// check if the player is clicking for the first time
 	bool firstClick = true;

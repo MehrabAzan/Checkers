@@ -2,7 +2,6 @@
 #include <iostream>
 #include <vector>
 #include <random>
-#include <SFML/Graphics.hpp>
 #include "Piece.h"
 #include "Board.h"
 #include "Bot.h"
@@ -10,115 +9,141 @@ using namespace std;
 using namespace sf;
 
 vector<int> Bot::Move(Board& board) {
-	// vector that will hold all black pieces' positions
-	vector<vector<int>> blackPieces;
 	// vector that will hold all possible captures
 	vector<vector<int>> captures;
+	// vector will hold all possible normal moves
+	vector<vector<int>> moves;
+	// vector will hold all possible king moves
+	vector<vector<int>> kingMoves;
+	// random number generator
+	random_device rd;
+	mt19937 gen(rd());
 
-	// iterate through the board to find all black pieces
+	// iterate through the board
 	for (int r = 0; r < 8; r++) {
 		for (int c = 0; c < 8; c++) {
 			// get the piece at the current position
 			Piece piece = board.GetPiece(r, c);
 			// check if the piece is black
 			if (piece.GetColor() == color) {
-				blackPieces.push_back({r, c});
+				// direction for capture
+				vector<vector<int>> captureDirections;
+				// direction for normal moves
+				vector<vector<int>> moveDirections;
+
+				// assign directions based on the piece
+				if (piece.GetType() == "king") {
+					captureDirections = { { 2, -2 }, { 2, 2 }, { -2, -2 }, { -2, 2 } };
+					moveDirections = { { 1, -1 }, { 1, 1 }, { -1, -1 }, { -1, 1 } };
+				} else {
+					captureDirections = { { 2, -2 }, { 2, 2 } };
+					moveDirections = { { 1, -1 }, { 1, 1 } };
+				}
+
+				// interate through capture directions
+				for (const vector<int>& i : captureDirections) {
+					// gets the current row and adds 1 to get the victim's position
+					int midR = r + i[0] / 2;
+					// gets the current column and adds 1 to get the victim's position
+					int midC = c + i[1] / 2;
+					// the new row after the capture
+					int newR = r + i[0];
+					// the new column after the capture
+					int newC = c + i[1];
+					// check if the mid position and new position are within bounds
+					if (midR >= 0 && midR < 8 && midC >= 0 && midC < 8 && newR >= 0 && newR < 8 && newC >= 0 && newC < 8) {
+						// get the victim's piece
+						Piece victim = board.GetPiece(midR, midC);
+						// check if the victim piece is white
+						if (victim.GetColor() == "white") {
+							// check if the move is valid
+							if (board.MovePiece(r, c, newR, newC)) {
+								// add to captures vector
+								captures.push_back({ r, c, newR, newC });
+							}
+						}
+					}
+				}
+
+				if (piece.GetType() == "king") {
+					// iterate through king move directions
+					for (const vector<int>& i : moveDirections) {
+						// the new row after the move
+						int newR = r + i[0];
+						// the new column after the move
+						int newC = c + i[1];
+						// check if the new position is within bounds
+						if (newR >= 0 && newR < 8 && newC >= 0 && newC < 8) {
+							// check if the move is valid
+							if (board.MovePiece(r, c, newR, newC)) {
+								// add to kingMoves vector
+								kingMoves.push_back({ r, c, newR, newC });
+							}
+						}
+					}
+				} else if (piece.GetType() == "man") {
+					// iterate through move directions
+					for (const vector<int>& i : moveDirections) {
+						// the new row after the move
+						int newR = r + i[0];
+						// the new column after the move
+						int newC = c + i[1];
+						// check if the new position is within bounds
+						if (newR >= 0 && newR < 8 && newC >= 0 && newC < 8) {
+							// check if the move is valid
+							if (board.MovePiece(r, c, newR, newC)) {
+								// add to moves vector
+								moves.push_back({ r, c, newR, newC });
+							}
+						}
+					}
+				}
 			}
 		}
 	}
 
 	// failsafe if there are no black pieces
-	if (blackPieces.empty()) {
+	if (moves.empty()) {
 		// no black pieces available to move
-		return {-1, -1, -1, -1};
+		return { -1, -1, -1, -1 };
 	}
 
-	// select a random black piece
-	random_device rd;
-	mt19937 gen(rd());
-	shuffle(blackPieces.begin(), blackPieces.end(), gen);
-
-	// iterate through the black pieces to find a valid move
-	for (const vector<int>& i : blackPieces) {
-		// current row and column of the selected piece
-		int r = i[0];
-		int c = i[1];
-
-		// get the piece at the current position
-		Piece piece = board.GetPiece(r, c);
-
-		// check if the piece belongs to the bot
-		if (piece.GetColor() == color) {
-			// check if diagonal left is within bounds
-			if (r + 1 < 8 && c - 1 >= 0) {
-				// get the piece at the diagonal left position
-				Piece diagonalLeft = board.GetPiece(r + 1, c - 1);
-				// check if the piece is white to the left
-				if (diagonalLeft.GetColor() == "white") {
-					// tries to capture left
-					int newR = r + 2;
-					int newC = c - 2;
-					// check if the new position is within bounds
-					if (newC >= 0 && newC < 8 && newR >= 0 && newR < 8) {
-						// check if the move is valid
-						if (board.MovePiece(r, c, newR, newC)) {
-							return { r, c, newR, newC };
-						}
-					}
-				}
-			}
-			// check if diagonal right is within bounds
-			if (r + 1 < 8 && c + 1 < 8) {
-				// get the piece at the diagonal right position
-				Piece diagonalRight = board.GetPiece(r + 1, c + 1);
-				// check if the piece is white to the right
-				if (diagonalRight.GetColor() == "white") {
-					// tries to capture right
-					int newR = r + 2;
-					int newC = c + 2;
-					// check if the new position is within bounds
-					if (newC >= 0 && newC < 8 && newR >= 0 && newR < 8) {
-						// check if the move is valid
-						if (board.MovePiece(r, c, newR, newC)) {
-							return { r, c, newR, newC };
-						}
-					}
-				}
-			}
-			// check for if the current piece is a king
-			if (piece.GetType() == "king") {
-				// kings can move up
-				int newR = r - 1;
-				// tries to move left or right
-				vector<int> newCs = { c - 1, c + 1 };
-				for (int newC : newCs) {
-					// check if the new position is within bounds
-					if (newC >= 0 && newC < 8 && newR >= 0 && newR < 8) {
-						// check if the move is valid
-						if (board.MovePiece(r, c, newR, newC)) {
-							return { r, c, newR, newC };
-						}
-					}
-				}
-			}
-			// default move
-			if (piece.GetType() == "man") {
-				// moves the piece down
-				int newR = r + 1;
-				// tries to move left or right
-				vector<int> newCs = { c - 1, c + 1 };
-				for (int newC : newCs) {
-					// check if the new position is within bounds
-					if (newC >= 0 && newC < 8 && newR >= 0 && newR < 8) {
-						// check if the move is valid
-						if (board.MovePiece(r, c, newR, newC)) {
-							return { r, c, newR, newC };
-						}
-					}
-				}
-			}
-		}
+	// prioritize captures
+	if (!captures.empty()) {
+		// select a random capture from the captures vector
+		uniform_int_distribution<> captureDistance(0, captures.size() - 1);
+		vector<int> selectedCapture = captures[captureDistance(gen)];
+		// assign the selected capture values
+		int r = selectedCapture[0];
+		int c = selectedCapture[1];
+		int newR = selectedCapture[2];
+		int newC = selectedCapture[3];
+		return selectedCapture;
 	}
+
+	// prioritize king moves
+	if (!kingMoves.empty()) {
+		// select a random king move from the kingMoves vector
+		uniform_int_distribution<> kingMoveDistance(0, kingMoves.size() - 1);
+		vector<int> selectedKingMove = kingMoves[kingMoveDistance(gen)];
+		// assign the selected king move values
+		int r = selectedKingMove[0];
+		int c = selectedKingMove[1];
+		int newR = selectedKingMove[2];
+		int newC = selectedKingMove[3];
+		return selectedKingMove;
+	}
+	
+	// select a random move from the moves vector
+	uniform_int_distribution<> moveDistance(0, moves.size() - 1);
+	vector<int> selectedMove = moves[moveDistance(gen)];
+	// assign the selected move values
+	int r = selectedMove[0];
+	int c = selectedMove[1];
+	int newR = selectedMove[2];
+	int newC = selectedMove[3];
+	return selectedMove;
+
 	// failsafe return if no move is possible
-	return {-1, -1, -1, -1};
+	return { -1, -1, -1, -1 };
 }
