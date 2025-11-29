@@ -168,7 +168,7 @@ vector<int> Bot::Move(Board& board) {
 
 // unemplemented code
 // kept this here for potential future use
-// was not able to solve minimax implementation within time constraints
+// was not able to solve minimax implementation
 /**
 vector<vector<int>> Bot::AllPossibleMoves(Board& board) {
 	// vector to hold all possible moves

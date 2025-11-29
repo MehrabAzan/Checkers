@@ -24,7 +24,7 @@ class Bot {
 
 // unemplemented code
 // kept this here for potential future use
-// was not able to solve minimax implementation within time constraints
+// was not able to solve minimax implementation
 // the maximum number of moves it will look ahead
 //int maxDepth = 3;
 /**
