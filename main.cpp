@@ -74,6 +74,7 @@ int main() {
 							int newR = y / 80;
 
 							// check if the move is valid
+							// attempt to move the piece
 							if (!board.MovePiece(currR, currC, newR, newC)) {
 								cout << "Move failed. Try again." << endl;
 							} else {

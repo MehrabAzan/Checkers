@@ -9,13 +9,10 @@ using namespace sf;
 // Board class representing the checkers board
 class Board {
 	private:
-		// 8x8 board
-		static const int row = 8;
-		static const int column = 8;
 		// 2D array of pieces
-		Piece pieces[row][column];
+		Piece pieces[8][8];
 		// 2D array of tile shapes
-		RectangleShape tiles[row][column];
+		RectangleShape tiles[8][8];
 	public:
 		// default constructor
 		Board() { InitializeBoard(); }

@@ -5,8 +5,8 @@
 using namespace std;
 
 void Board::InitializeBoard() {
-    for (int r = 0; r < row; r++) {
-        for (int c = 0; c < column; c++) {
+    for (int r = 0; r < 8; r++) {
+        for (int c = 0; c < 8; c++) {
 			// set up the tile size
             tiles[r][c].setSize(Vector2f(80.f, 80.f));
 			// center the tiles on the board
@@ -36,8 +36,8 @@ void Board::InitializeBoard() {
 }
 
 void Board::PrintBoard(RenderWindow& window) const {
-    for (int r = 0; r < row; r++) {
-        for (int c = 0; c < column; c++) {
+    for (int r = 0; r < 8; r++) {
+        for (int c = 0; c < 8; c++) {
 			// draw the tile
 			window.draw(tiles[r][c]);
            if (pieces[r][c].GetColor() != "null") {
@@ -59,7 +59,7 @@ bool Board::MovePiece(int currR, int currC, int newR, int newC) {
         return false;
     }
 	// check if the move is within bounds
-    if (currR < 0 || currR >= row || currC < 0 || currC >= column || newR < 0 || newR >= row || newC < 0 || newC >= column) {
+    if (currR < 0 || currR >= 8 || currC < 0 || currC >= 8 || newR < 0 || newR >= 8 || newC < 0 || newC >= 8) {
         cout << "Invalid move: Out of bounds." << endl;
         return false;
     }
@@ -122,7 +122,7 @@ bool Board::MovePiece(int currR, int currC, int newR, int newC) {
 
 	// check for promotion to king if a man reaches the opposite end
     if (movingPiece.GetType() == "man") {
-        if ((movingPiece.GetColor() == "white" && newR == 0) || (movingPiece.GetColor() == "black" && newR == row - 1)) {
+        if ((movingPiece.GetColor() == "white" && newR == 0) || (movingPiece.GetColor() == "black" && newR == 7)) {
             pieces[newR][newC].Promotion();
         }
     }
