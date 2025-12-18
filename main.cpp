@@ -28,6 +28,8 @@ int main() {
 	int blackPieces = 12;
 	int whitePieces = 12;
 
+
+
 	// while the window is open
 	while (window.isOpen()) {
 		// process events

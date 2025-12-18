@@ -1,240 +1,235 @@
 #include <string>
 #include <iostream>
 #include <vector>
-#include <random>
+#include <algorithm>
+#include <climits>
 #include "Piece.h"
 #include "Board.h"
 #include "Bot.h"
 using namespace std;
 
-int Bot::EvaluateBoard(Board& board) {
-	// declare score variable
-	int score = 0;
-
-	// iterate through the board
-	for (int r = 0; r < 8; r++) {
-		for (int c = 0; c < 8; c++) {
-			// get the piece at the current position
-			Piece piece = board.GetPiece(r, c);
-			// evaluate based on piece type and color
-			string color = piece.GetColor();
-			string type = piece.GetType();
-			int value = 0;
-
-			// assign piece value based on type
-			if (type == "man") {
-				value = 1;
-			}
-			else if (type == "king") {
-				value = 2;
-			}
-			else {
-				value = 0;
-			}
-
-			// adjust score based on color
-			if (color == "black") {
-				score += value;
-			}
-			else if (color == "white") {
-				score -= value;
-			}
-		}
-	}
-
-	// return the final score
-	return score;
-}
-
 vector<int> Bot::Move(Board& board) {
-	// vector that will hold all possible captures
-	vector<vector<int>> captures;
-	// vector will hold all possible normal moves
-	vector<vector<int>> moves;
-	// random number generator
-	random_device rd;
-	mt19937 gen(rd());
-	// lowest possible score so any score will be higher
-	int score = INT_MIN;
-	// possible moves the bot can make
-	vector<vector<int>> possibleMoves;
-	// best move the bot will make
-	vector<vector<int>> bestMoves;
+    vector<vector<int>> possibleMoves = AllPossibleMoves(board);
+    if (possibleMoves.empty()) {
+        return {};
+    }
 
-	// iterate through the board
-	for (int r = 0; r < 8; r++) {
-		for (int c = 0; c < 8; c++) {
-			// get the piece at the current position
-			Piece piece = board.GetPiece(r, c);
-			// check if the piece is black
-			if (piece.GetColor() == color) {
-				// direction for capture
-				vector<vector<int>> captureDirections;
-				// direction for normal moves
-				vector<vector<int>> moveDirections;
+    int bestScore = INT_MIN;
+    vector<int> bestMove;
 
-				// assign directions based on the piece
-				if (piece.GetType() == "king") {
-					captureDirections = { { 2, -2 }, { 2, 2 }, { -2, -2 }, { -2, 2 } };
-					moveDirections = { { 1, -1 }, { 1, 1 }, { -1, -1 }, { -1, 1 } };
-				}
-				else {
-					captureDirections = { { 2, -2 }, { 2, 2 } };
-					moveDirections = { { 1, -1 }, { 1, 1 } };
-				}
+    for (const auto& move : possibleMoves) {
+        Board tempBoard = board;
+        if (!tempBoard.MovePiece(move[0], move[1], move[2], move[3])) {
+            continue;
+        }
+        int score = MiniMax(tempBoard, maxDepth, false, INT_MIN, INT_MAX);
+        if (score > bestScore) {
+            bestScore = score;
+            bestMove = move;
+        }
+    }
 
-				// interate through capture directions
-				for (const vector<int>& i : captureDirections) {
-					// the new row after the capture
-					int newR = r + i[0];
-					// the new column after the capture
-					int newC = c + i[1];
-					// check if the mid position and new position are within bounds
-					if (newR >= 0 && newR < 8 && newC >= 0 && newC < 8) {
-						// create a copy of the board to simulate the move
-						Board tempBoard = board;
-						// check if the capture move is valid
-						if (tempBoard.MovePiece(r, c, newR, newC)) {
-							// add to captures vector
-							captures.push_back({ r, c, newR, newC });
-						}
-					}
-				}
-
-				// iterate through normal move directions
-				for (const vector<int>& i : moveDirections) {
-					// the new row after the move
-					int newR = r + i[0];
-					// the new column after the move
-					int newC = c + i[1];
-					// check if the new position is within bounds
-					if (newR >= 0 && newR < 8 && newC >= 0 && newC < 8) {
-						// create a copy of the board to simulate the move
-						Board tempBoard = board;
-						// check if the move is valid
-						if (tempBoard.MovePiece(r, c, newR, newC)) {
-							// add to moves vector
-							moves.push_back({ r, c, newR, newC });
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// failsafe move if no moves are possible
-	if (captures.empty() && moves.empty()) {
-		return { -1, -1, -1, -1 };
-	}
-
-	// prioritize captures over normal moves
-	if (!captures.empty()) {
-		possibleMoves = captures;
-	} else {
-		possibleMoves = moves;
-	}
-
-	for (const vector<int>& i : possibleMoves) {
-		// create a copy of the board to simulate the move
-		Board tempBoard = board;
-		// make the move on the temporary board
-		tempBoard.MovePiece(i[0], i[1], i[2], i[3]);
-		// evaluate the board after the move
-		int currentScore = EvaluateBoard(tempBoard);
-		// if the current score is better than the best score found
-		if (currentScore > score) {
-			// update the best score and reset best moves
-			score = currentScore;
-			bestMoves.clear();
-			// add the current move to best moves
-			bestMoves.push_back(i);
-		} else if (currentScore == score) {
-			// if the score is equal, add to best moves
-			bestMoves.push_back(i);
-		}
-	}
-
-	// failsafe in case no best move is found
-	if (bestMoves.empty()) {
-		return { -1, -1, -1, -1 };
-	}
-
-	// randomly select one of the best moves
-	uniform_int_distribution<> dis(0, bestMoves.size() - 1);
-	// return the selected move
-	return bestMoves[dis(gen)];
+    return bestMove;
 }
 
+int Bot::EvaluateBoard(Board& board) {
+    int score = 0;
 
-// unemplemented code
-// kept this here for potential future use
-// was not able to solve minimax implementation
-/**
+    for (int r = 0; r < 8; r++) {
+        for (int c = 0; c < 8; c++) {
+            Piece piece = board.GetPiece(r, c);
+            if (piece.GetColor() == "null") {
+                continue;
+            }
+
+            int value = 0;
+            if (piece.GetType() == "man") value = 1;
+            else if (piece.GetType() == "king") value = 2;
+
+            if (piece.GetColor() == "black") score += value;
+            else if (piece.GetColor() == "white") score -= value;
+        }
+    }
+
+    return score;
+}
+
 vector<vector<int>> Bot::AllPossibleMoves(Board& board) {
-	// vector to hold all possible moves
-	vector<vector<int>> moves;
-	// iterate through the board
-	for (int r = 0; r < 8; r++) {
-		for (int c = 0; c < 8; c++) {
-			// get the piece at the current position
-			Piece piece = board.GetPiece(r, c);
-			// check if the piece is black
-			if (piece.GetColor() == "black") {
-				vector<vector<int>> directions;
+    vector<vector<int>> possibleMoves;
 
-				// assign directions based on the piece
-				if (piece.GetType() == "king") {
-					directions = { { 1, -1 }, { 1, 1 }, { -1, -1 }, { -1, 1 } };
-				} else {
-					directions = { { 1, -1 }, { 1, 1 } };
-				}
+    for (int r = 0; r < 8; r++) {
+        for (int c = 0; c < 8; c++) {
+            Piece piece = board.GetPiece(r, c);
+            if (piece.GetColor() != color) {
+                continue;
+            }
 
-				// iterate through possible move directions
-				for (const vector<int>& i : directions) {
-					// the new row after the move
-					int newR = r + i[0];
-					// the new column after the move
-					int newC = c + i[1];
-					// check if the new position is within bounds
-					if (newR >= 0 && newR < 8 && newC >= 0 && newC < 8) {
-						// check if the move is valid
-						if (board.MovePiece(r, c, newR, newC)) {
-							// add to moves vector
-							moves.push_back({ r, c, newR, newC });
-						}
-					}
+            if (piece.GetType() == "man") {
+                int dr = (color == "black") ? 1 : -1;
 
-					// check for possible captures
-					// the victim's position
-					int midR = r + i[0];
-					int midC = c + i[1];
-					// the position after the capture
-					int captureR = r + 2 * i[0];
-					int captureC = c + 2 * i[1];
+                for (int dc : {-1, 1}) {
+                    int nr = r + dr;
+                    int nc = c + dc;
+                    if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                        if (board.GetPiece(nr, nc).GetColor() == "null") {
+                            possibleMoves.push_back({ r, c, nr, nc });
+                        }
+                    }
 
-					// check if the mid position and capture position are within bounds
-					if (midR >= 0 && midR < 8 && midC >= 0 && midC < 8 && captureR >= 0 && captureR < 8 && captureC >= 0 && captureC < 8) {
-						// get the victim's piece
-						Piece victim = board.GetPiece(midR, midC);
-						// check if the victim piece is white
-						if (victim.GetColor() == "white") {
-							// check if the capture move is valid
-							if (board.MovePiece(r, c, captureR, captureC)) {
-								// add to moves vector
-								moves.push_back({ r, c, captureR, captureC });
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+                    int cr = r + 2 * dr;
+                    int cc = c + 2 * dc;
+                    int mr = r + dr;
+                    int mc = c + dc;
+                    if (cr >= 0 && cr < 8 && cc >= 0 && cc < 8 && mr >= 0 && mr < 8 && mc >= 0 && mc < 8) {
+                        if (board.GetPiece(cr, cc).GetColor() == "null") {
+                            string midColor = board.GetPiece(mr, mc).GetColor();
+                            if (midColor != "null" && midColor != color) {
+                                possibleMoves.push_back({ r, c, cr, cc });
+                            }
+                        }
+                    }
+                }
+            }
+            else if (piece.GetType() == "king") {
+                for (int dr : {-1, 1}) {
+                    for (int dc : {-1, 1}) {
+                        for (int step = 1; step < 8; step++) {
+                            int nr = r + dr * step;
+                            int nc = c + dc * step;
+                            if (nr < 0 || nr >= 8 || nc < 0 || nc >= 8) {
+                                break;
+                            }
+                            if (board.GetPiece(nr, nc).GetColor() != "null") {
+                                continue;
+                            }
 
-	// return all possible moves
-	return moves;
+                            if (step == 2) {
+                                int mr = r + dr;
+                                int mc = c + dc;
+                                string midColor = board.GetPiece(mr, mc).GetColor();
+                                if (midColor != "null" && midColor != color) {
+                                    possibleMoves.push_back({ r, c, nr, nc });
+                                }
+                            }
+                            else {
+                                possibleMoves.push_back({ r, c, nr, nc });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return possibleMoves;
 }
 
 int Bot::MiniMax(Board& board, int depth, bool isMaximizing, int alpha, int beta) {
+    if (depth == 0) {
+        return EvaluateBoard(board);
+    }
 
+    const string sideColor = isMaximizing ? "black" : "white";
+    vector<vector<int>> possibleMoves;
+
+    for (int r = 0; r < 8; r++) {
+        for (int c = 0; c < 8; c++) {
+            Piece piece = board.GetPiece(r, c);
+            if (piece.GetColor() != sideColor) {
+                continue;
+            }
+
+            if (piece.GetType() == "man") {
+                int dr = (sideColor == "black") ? 1 : -1;
+
+                for (int dc : {-1, 1}) {
+                    int nr = r + dr;
+                    int nc = c + dc;
+                    if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                        if (board.GetPiece(nr, nc).GetColor() == "null") {
+                            possibleMoves.push_back({ r, c, nr, nc });
+                        }
+                    }
+
+                    int cr = r + 2 * dr;
+                    int cc = c + 2 * dc;
+                    int mr = r + dr;
+                    int mc = c + dc;
+                    if (cr >= 0 && cr < 8 && cc >= 0 && cc < 8 && mr >= 0 && mr < 8 && mc >= 0 && mc < 8) {
+                        if (board.GetPiece(cr, cc).GetColor() == "null") {
+                            string midColor = board.GetPiece(mr, mc).GetColor();
+                            if (midColor != "null" && midColor != sideColor) {
+                                possibleMoves.push_back({ r, c, cr, cc });
+                            }
+                        }
+                    }
+                }
+            }
+            else if (piece.GetType() == "king") {
+                for (int dr : {-1, 1}) {
+                    for (int dc : {-1, 1}) {
+                        for (int step = 1; step < 8; step++) {
+                            int nr = r + dr * step;
+                            int nc = c + dc * step;
+                            if (nr < 0 || nr >= 8 || nc < 0 || nc >= 8) {
+                                break;
+                            }
+                            if (board.GetPiece(nr, nc).GetColor() != "null") {
+                                continue;
+                            }
+
+                            if (step == 2) {
+                                int mr = r + dr;
+                                int mc = c + dc;
+                                string midColor = board.GetPiece(mr, mc).GetColor();
+                                if (midColor != "null" && midColor != sideColor) {
+                                    possibleMoves.push_back({ r, c, nr, nc });
+                                }
+                            }
+                            else {
+                                possibleMoves.push_back({ r, c, nr, nc });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (possibleMoves.empty()) {
+        return EvaluateBoard(board);
+    }
+
+    if (isMaximizing) {
+        int bestEval = INT_MIN;
+        for (const auto& move : possibleMoves) {
+            Board tempBoard = board;
+            if (!tempBoard.MovePiece(move[0], move[1], move[2], move[3])) {
+                continue;
+            }
+            int eval = MiniMax(tempBoard, depth - 1, false, alpha, beta);
+            bestEval = max(bestEval, eval);
+            alpha = max(alpha, eval);
+            if (beta <= alpha) {
+                break;
+            }
+        }
+        return bestEval;
+    }
+    else {
+        int bestEval = INT_MAX;
+        for (const auto& move : possibleMoves) {
+            Board tempBoard = board;
+            if (!tempBoard.MovePiece(move[0], move[1], move[2], move[3])) {
+                continue;
+            }
+            int eval = MiniMax(tempBoard, depth - 1, true, alpha, beta);
+            bestEval = min(bestEval, eval);
+            beta = min(beta, eval);
+            if (beta <= alpha) {
+                break;
+            }
+        }
+        return bestEval;
+    }
 }
-**/
