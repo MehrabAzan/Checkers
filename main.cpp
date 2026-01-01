@@ -28,7 +28,11 @@ int main() {
 	int blackPieces = 12;
 	int whitePieces = 12;
 
-
+	Font font("arial.ttf");
+	Text text(font);
+	text.setCharacterSize(24);
+	text.setFillColor(Color(139, 69, 19));
+	text.setPosition({10.f, 10.f});
 
 	// while the window is open
 	while (window.isOpen()) {
@@ -60,13 +64,13 @@ int main() {
 
 							// check if the player clicked outside the board
 							if (currC < 0 || currC >= 8 || currR < 0 || currR >= 8) {
-								cout << "Please click within the board." << endl;
+								text.setString("Please click within the board.");
 								// reset firstClick to true if player clicked outside the board
 								firstClick = true;
 							}
 							// ensure the player is only moving white pieces
 							if (selectedPiece.GetColor() != "white") {
-								cout << "Please click white piece." << endl;
+								text.setString("Please click white piece.");
 								// reset firstClick to true if player clicked on invalid piece
 								firstClick = true;
 							}
@@ -78,7 +82,7 @@ int main() {
 							// check if the move is valid
 							// attempt to move the piece
 							if (!board.MovePiece(currR, currC, newR, newC)) {
-								cout << "Move failed. Try again." << endl;
+								text.setString("Invalid move. Try again.");
 							} else {
 								// switch to bot's turn
 								playerTurn = false;
@@ -123,10 +127,10 @@ int main() {
 
 		// checks for win condition
 		if (blackPieces == 0) {
-			cout << "White wins!" << endl;
+			text.setString("White wins!");
 			window.close();
 		} else if (whitePieces == 0) {
-			cout << "Black wins!" << endl;
+			text.setString("Black wins!");
 			window.close();
 		}
 
@@ -134,6 +138,7 @@ int main() {
 		window.clear();
 		board.PrintBoard(window);
 		// display the contents of the window
+		window.draw(text);
 		window.display();
 	}
 }

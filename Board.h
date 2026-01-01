@@ -1,6 +1,5 @@
 #ifndef BOARD_H
 #define BOARD_H
-#include <iostream>
 #include <SFML/Graphics.hpp>
 #include "Piece.h"
 using namespace std;

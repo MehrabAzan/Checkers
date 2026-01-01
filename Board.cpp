@@ -1,5 +1,4 @@
 #include <string>
-#include <iostream>
 #include <cstdlib>
 #include "Board.h"
 using namespace std;
@@ -17,7 +16,7 @@ void Board::InitializeBoard() {
                 tiles[r][c].setFillColor(Color::White);
             } else {
 				// I chose brown for the dark tiles so the black pieces are visible
-                tiles[r][c].setFillColor(Color(139, 69, 19));
+                tiles[r][c].setFillColor(Color::Red);
             }
 
 			// place the pieces in their starting positions
@@ -55,44 +54,36 @@ bool Board::MovePiece(int currR, int currC, int newR, int newC) {
 
 	// check if the move is diagonal
 	if (abs(numR) != abs(numC)) {
-        cout << "Invalid move: Must move diagonally." << endl;
         return false;
     }
 	// check if the move is within bounds
     if (currR < 0 || currR >= 8 || currC < 0 || currC >= 8 || newR < 0 || newR >= 8 || newC < 0 || newC >= 8) {
-        cout << "Invalid move: Out of bounds." << endl;
         return false;
     }
 	// check if there is a piece at the current position that the player clicked
     if (pieces[currR][currC].GetColor() == "null") {
-        cout << "Invalid move: No piece at the current position." << endl;
         return false;
 	}
 	// check if the final destination is empty
     if (pieces[newR][newC].GetColor() != "null") {
-        cout << "Invalid move: Destination is not empty." << endl;
         return false;
 	}
 	// cannot move to the same position
     if (currR == newR && currC == newC) {
-        cout << "Invalid move: Same source and destination." << endl;
         return false;
     }
 	// check to see if it is a man piece
     if (pieces[currR][currC].GetType() == "man") {
 		// white men can only move up the board, black men can only move down
         if (pieces[currR][currC].GetColor() == "white" && newR > currR) {
-            cout << "Invalid move: White pieces (unless king) can only move up." << endl;
             return false;
         }
         if (pieces[currR][currC].GetColor() == "black" && newR < currR) {
-            cout << "Invalid move: Black pieces (unless king) can only move down." << endl;
             return false;
         }
     }
 	// men can only move one space diagonally unless capturing
     if (pieces[currR][currC].GetType() == "man" && abs(numR) > 2 && abs(numC) > 2) {
-        cout << "Invalid move: Man pieces can only move one space diagonally." << endl;
         return false;
     }
 	// check if the player is moving two spaces diagonally for a capture
@@ -103,7 +94,6 @@ bool Board::MovePiece(int currR, int currC, int newR, int newC) {
 
         if (pieces[midR][midC].GetColor() == "null" || pieces[midR][midC].GetColor() == pieces[currR][currC].GetColor()) {
             // if it's an empty tile or same color piece, invalid capture
-            cout << "Invalid move: No opponent piece to capture." << endl;
             return false;
         }
 

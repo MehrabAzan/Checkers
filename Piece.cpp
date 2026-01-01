@@ -1,5 +1,4 @@
 #include <string>
-#include <iostream>
 #include <SFML/Graphics.hpp>
 #include "Piece.h"
 using namespace std;

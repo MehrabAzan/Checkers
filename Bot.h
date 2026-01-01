@@ -1,7 +1,6 @@
 #ifndef BOT_H
 #define BOT_H
 #include <string>
-#include <iostream>
 #include <vector>
 #include "Piece.h"
 #include "Board.h"

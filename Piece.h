@@ -1,7 +1,6 @@
 #ifndef PIECE_H
 #define PIECE_H
 #include <string>
-#include <iostream>
 #include <SFML/Graphics.hpp>
 using namespace std;
 using namespace sf;
