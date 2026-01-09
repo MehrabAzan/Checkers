@@ -33,6 +33,9 @@ int main() {
 	text.setFillColor(Color(139, 69, 19));
 	text.setPosition({10.f, 10.f});
 
+	Clock clock;
+	bool showMessage = true;
+
 	// while the window is open
 	while (window.isOpen()) {
 		// process events
