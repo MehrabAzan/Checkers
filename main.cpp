@@ -1,5 +1,4 @@
 #include <SFML/Graphics.hpp>
-#include <string>
 #include <vector>
 #include "Board.h"
 #include "Piece.h"

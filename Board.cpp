@@ -1,4 +1,3 @@
-#include <string>
 #include <cstdlib>
 #include "Board.h"
 using namespace std;
