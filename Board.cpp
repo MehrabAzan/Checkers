@@ -15,7 +15,7 @@ void Board::InitializeBoard() {
                 tiles[r][c].setFillColor(Color::White);
             } else {
 				// I chose brown for the dark tiles so the black pieces are visible
-                tiles[r][c].setFillColor(Color::Red);
+                tiles[r][c].setFillColor(Color(139, 69, 19));
             }
 
 			// place the pieces in their starting positions

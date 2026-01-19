@@ -29,7 +29,7 @@ int main() {
 	Font font("arial.ttf");
 	Text text(font);
 	text.setCharacterSize(24);
-	text.setFillColor(Color(139, 69, 19));
+	text.setFillColor(Color::Red);
 	text.setPosition({10.f, 10.f});
 
 	Clock clock;
